@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -60,7 +61,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        startDemo();
+
+        if (mMap!=null){
+            Log.d("MapOnline","Google map is working");
+            startDemo();
+        }
         /*LatLng sydney = new LatLng(-33.852, 151.211);
         LatLng rajisthan = new LatLng(26.266914, 74.443261);
         LatLng ambala = new LatLng(30.392953, 76.743924);
