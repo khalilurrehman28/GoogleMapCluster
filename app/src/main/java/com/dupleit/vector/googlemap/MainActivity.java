@@ -30,9 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback,ClusterManager.OnClusterClickListener<Person>, ClusterManager.OnClusterInfoWindowClickListener<Person>, ClusterManager.OnClusterItemClickListener<Person>, ClusterManager.OnClusterItemInfoWindowClickListener<Person>{
+public class MainActivity extends AppCompatActivity implements
+        OnMapReadyCallback,
+        ClusterManager.OnClusterClickListener<Person>,
+        ClusterManager.OnClusterInfoWindowClickListener<Person>,
+        ClusterManager.OnClusterItemClickListener<Person>,
+        ClusterManager.OnClusterItemInfoWindowClickListener<Person>{
+
     private ClusterManager<Person> mClusterManager;
-    private Random mRandom = new Random(1984);
+    private Random mRandom = new Random(2017);
     private GoogleMap mMap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +47,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setUpMap();
     }
     private void setUpMap() {
-        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
+       // ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     /**
@@ -60,24 +69,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        if (mMap!=null){
-            Log.d("MapOnline","Google map is working");
-            startDemo();
+        if (mMap != null) {
+            return;
         }
-        /*LatLng sydney = new LatLng(-33.852, 151.211);
-        LatLng rajisthan = new LatLng(26.266914, 74.443261);
-        LatLng ambala = new LatLng(30.392953, 76.743924);
-        LatLng jharkhand = new LatLng(23.810886, 85.095694);
-
-        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney")).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.flag));
-        googleMap.addMarker(new MarkerOptions().position(rajisthan).title("Marker in Rajisthan"));
-        googleMap.addMarker(new MarkerOptions().position(ambala).title("Marker in Ambala"));
-        googleMap.addMarker(new MarkerOptions().position(jharkhand).title("Marker in Jharkhand"));
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
-
+        mMap = googleMap;
+        startDemo();
     }
 
 
@@ -151,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onClusterClick(Cluster<Person> cluster) {
         // Show a toast with some info when the cluster is clicked.
         String firstName = cluster.getItems().iterator().next().name;
+
         Toast.makeText(this, cluster.getSize() + " (including " + firstName + ")", Toast.LENGTH_SHORT).show();
 
         // Zoom in the cluster. Need to create LatLngBounds and including all the cluster items
@@ -192,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     protected void startDemo() {
         getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 9.5f));
-
         mClusterManager = new ClusterManager<Person>(this, getMap());
         mClusterManager.setRenderer(new PersonRenderer());
         getMap().setOnCameraIdleListener(mClusterManager);
@@ -202,12 +198,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mClusterManager.setOnClusterInfoWindowClickListener(this);
         mClusterManager.setOnClusterItemClickListener(this);
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
-
         addItems();
         mClusterManager.cluster();
     }
 
     private void addItems() {
+        mClusterManager.clearItems();
+        Log.d("ClusterItem","New Item Added");
         // http://www.flickr.com/photos/sdasmarchives/5036248203/
         mClusterManager.addItem(new Person(position(), "Walter", R.drawable.walter));
 
