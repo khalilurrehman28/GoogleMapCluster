@@ -26,6 +26,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -74,13 +75,28 @@ public class MainActivity extends AppCompatActivity implements
             public void onResponse(Call<UsersMaps> call, Response<UsersMaps> response) {
                 if (response.isSuccessful()){
                     if (response.body().getStatus()){
-                        Toast.makeText(MainActivity.this, "Hello from api", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MainActivity.this, "Hello from api", Toast.LENGTH_SHORT).show();
+                        Double lat =  0.0;
+                        Double lang = 0.0;
+                        int count = 0;
                         List<Datum> objUser = response.body().getData();
                         for (Datum quizShow : objUser) {
                             String[] userCoordinates  = quizShow.getUSERCOORDINATE().split(",");
                             LatLng latLng = new LatLng(Double.parseDouble(userCoordinates[0].trim()),Double.parseDouble(userCoordinates[1].trim()));
+                            lat = lat+Double.parseDouble(userCoordinates[0].trim());
+                            lang = lang+Double.parseDouble(userCoordinates[1].trim());
                             mClusterManager.addItem(new Datum(quizShow.getUSERID(),quizShow.getUSERNAME(),quizShow.getUSERIMAGE(),latLng));
+                            count++;
                         }
+                       // final LatLngBounds bounds =
+                        CameraPosition cameraPosition = new CameraPosition.Builder()
+                                .target(new LatLng((lat/count),(lang/count)))    // Sets the center of the map to Mountain View
+                                .zoom(7)                   // Sets the zoom
+                                .bearing(16)                // Sets the orientation of the camera to east
+                                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                                .build();                   // Creates a CameraPosition from the builder
+
+                        getMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                         mClusterManager.cluster();
                     }
                 }
@@ -241,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     protected void startDemo() {
-        getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 9.5f));
+        //getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 9.5f));
         mClusterManager = new ClusterManager<Datum>(this, getMap());
         mClusterManager.setRenderer(new PersonRenderer());
         getMap().setOnCameraIdleListener(mClusterManager);
@@ -251,12 +267,13 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterInfoWindowClickListener(this);
         mClusterManager.setOnClusterItemClickListener(this);
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
-        addItems();
+        mClusterManager.clearItems();
+        //addItems();
 
     }
 
     private void addItems() {
-        mClusterManager.clearItems();
+
         Log.d("ClusterItem","New Item Added");
         // http://www.flickr.com/photos/sdasmarchives/5036248203/
         /*mClusterManager.addItem(new Person(position(), "Walter", R.drawable.walter));
