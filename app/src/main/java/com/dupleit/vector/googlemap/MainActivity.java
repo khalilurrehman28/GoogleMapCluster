@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.dupleit.vector.googlemap.Constant.Appconstant;
 import com.dupleit.vector.googlemap.Network.APIService;
 import com.dupleit.vector.googlemap.Network.ApiClient;
+import com.dupleit.vector.googlemap.backgroundOperations.backgroundoperation;
 import com.dupleit.vector.googlemap.modal.Datum;
 import com.dupleit.vector.googlemap.modal.Person;
 import com.dupleit.vector.googlemap.modal.UsersMaps;
@@ -64,12 +65,14 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         setUpMap();
-        getUsersData();
+        //startDemo();
+
+       // getUsersData();
     }
 
     private void getUsersData() {
         APIService service = ApiClient.getClient().create(APIService.class);
-        Call<UsersMaps> userCall = service.UserLogin("test");
+        Call<UsersMaps> userCall = service.UserLogin();
         userCall.enqueue(new Callback<UsersMaps>() {
             @Override
             public void onResponse(Call<UsersMaps> call, Response<UsersMaps> response) {
@@ -134,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements
         }
         mMap = googleMap;
         startDemo();
+        backgroundoperation backgroundoperation = new backgroundoperation(mClusterManager,getMap());
+        backgroundoperation.execute();
     }
 
     /**
@@ -212,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+
     @Override
     public boolean onClusterClick(Cluster<Datum> cluster) {
         // Show a toast with some info when the cluster is clicked.
@@ -257,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     protected void startDemo() {
-        //getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 9.5f));
+        getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 9.5f));
         mClusterManager = new ClusterManager<Datum>(this, getMap());
         mClusterManager.setRenderer(new PersonRenderer());
         getMap().setOnCameraIdleListener(mClusterManager);
