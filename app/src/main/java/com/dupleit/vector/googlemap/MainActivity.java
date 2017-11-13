@@ -1,6 +1,7 @@
 package com.dupleit.vector.googlemap;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
@@ -65,9 +67,6 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         setUpMap();
-        //startDemo();
-
-       // getUsersData();
     }
 
     private void getUsersData() {
@@ -136,6 +135,21 @@ public class MainActivity extends AppCompatActivity implements
             return;
         }
         mMap = googleMap;
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, R.raw.mapstyle));
+
+            if (!success) {
+                Log.e("Map", "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e("Map", "Can't find style. Error: ", e);
+        }
+
+
         startDemo();
         backgroundoperation backgroundoperation = new backgroundoperation(mClusterManager,getMap());
         backgroundoperation.execute();
@@ -254,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onClusterItemClick(Datum item) {
         // Does nothing, but you could go into the user's profile page, for example.
+        Toast.makeText(this, ""+item.getUSERNAME(), Toast.LENGTH_SHORT).show();
         return false;
     }
 
@@ -319,8 +334,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private Bitmap convertUrlToDrawable(String urlResource) throws IOException {
         URL url = new URL(Appconstant.weburl+urlResource);
-        Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-        return bmp;
+        return BitmapFactory.decodeStream(url.openConnection().getInputStream());
     }
 
 }
