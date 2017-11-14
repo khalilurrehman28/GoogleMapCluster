@@ -1,6 +1,5 @@
 package com.dupleit.vector.googlemap;
 
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,7 +19,6 @@ import com.dupleit.vector.googlemap.Network.APIService;
 import com.dupleit.vector.googlemap.Network.ApiClient;
 import com.dupleit.vector.googlemap.backgroundOperations.backgroundoperation;
 import com.dupleit.vector.googlemap.modal.Datum;
-import com.dupleit.vector.googlemap.modal.Person;
 import com.dupleit.vector.googlemap.modal.UsersMaps;
 import com.dupleit.vector.googlemap.multiPIcs.MultiDrawable;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -40,7 +38,6 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,48 +64,6 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         setUpMap();
-    }
-
-    private void getUsersData() {
-        APIService service = ApiClient.getClient().create(APIService.class);
-        Call<UsersMaps> userCall = service.UserLogin();
-        userCall.enqueue(new Callback<UsersMaps>() {
-            @Override
-            public void onResponse(Call<UsersMaps> call, Response<UsersMaps> response) {
-                if (response.isSuccessful()){
-                    if (response.body().getStatus()){
-                        //Toast.makeText(MainActivity.this, "Hello from api", Toast.LENGTH_SHORT).show();
-                        Double lat =  0.0;
-                        Double lang = 0.0;
-                        int count = 0;
-                        List<Datum> objUser = response.body().getData();
-                        for (Datum quizShow : objUser) {
-                            String[] userCoordinates  = quizShow.getUSERCOORDINATE().split(",");
-                            LatLng latLng = new LatLng(Double.parseDouble(userCoordinates[0].trim()),Double.parseDouble(userCoordinates[1].trim()));
-                            lat = lat+Double.parseDouble(userCoordinates[0].trim());
-                            lang = lang+Double.parseDouble(userCoordinates[1].trim());
-                            mClusterManager.addItem(new Datum(quizShow.getUSERID(),quizShow.getUSERNAME(),quizShow.getUSERIMAGE(),latLng));
-                            count++;
-                        }
-                       // final LatLngBounds bounds =
-                        CameraPosition cameraPosition = new CameraPosition.Builder()
-                                .target(new LatLng((lat/count),(lang/count)))    // Sets the center of the map to Mountain View
-                                .zoom(7)                   // Sets the zoom
-                                .bearing(16)                // Sets the orientation of the camera to east
-                                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                                .build();                   // Creates a CameraPosition from the builder
-
-                        getMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                        mClusterManager.cluster();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UsersMaps> call, Throwable t) {
-                Log.d("onFailure", t.toString());
-            }
-        });
     }
 
     private void setUpMap() {
@@ -148,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements
         } catch (Resources.NotFoundException e) {
             Log.e("Map", "Can't find style. Error: ", e);
         }
-
 
         startDemo();
         backgroundoperation backgroundoperation = new backgroundoperation(mClusterManager,getMap());
